@@ -41,7 +41,7 @@ int main(int argc, char **argv)
             char entryType;
             scanf(" %c", &entryType);
 
-            if (entryType != '1' && entryType != '0')
+            if (entryType != '1' && entryType != '2')
             {
                 fprintf(stdout, "%c is not a valid option", entryType);
                 exit(1);

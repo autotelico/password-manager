@@ -7,7 +7,7 @@
 #define VAULT_FILE "vault.dat"
 #define ENTRY_LIST_LENGTH 50
 #ifndef KEY
-    #define KEY "somethingstrong"
+#define KEY "somethingstrong"
 #endif
 
 Entry write_entry(const char *key)
@@ -16,7 +16,7 @@ Entry write_entry(const char *key)
     printf("Enter service:");
     scanf("%s", entry.service);
     entry.service[strcspn(entry.service, "\n")] = '\0';
-    
+
     printf("Enter username or email:");
     scanf("%s", entry.username);
     entry.username[strcspn(entry.username, "\n")] = '\0';
@@ -68,23 +68,27 @@ void list_entries()
 
 int delete_entry(char *key, int option)
 {
-    // int validOptions[] = {0, 1};
-    // int validOptionsLength = sizeof(validOptions) / sizeof(validOptions[0]);
-    // int optionIsValid = 0;
+    // Validate passed option
+    int validOptions[] = {1, 2};
+    int validOptionsLength = sizeof(validOptions) / sizeof(validOptions[0]);
+    int optionIsValid = 0;
 
-    // for (int i = 0; i < validOptionsLength; i++) {
-    //     if (option == validOptions[i])
-    //     {
-    //         optionIsValid = 1;
-    //         break;
-    //     }
-    // }
+    for (int i = 0; i < validOptionsLength; i++)
+    {
+        if (option == validOptions[i])
+        {
+            optionIsValid = 1;
+            break;
+        }
+    }
 
-    // if (optionIsValid == 0)
-    // {
-    //     printf("invalid option passed\n");
-    //     return 1;
-    // }
+    if (optionIsValid == 0)
+    {
+        printf("invalid option passed\n");
+        return 1;
+    }
+
+    // Option is valid. Continue
     printf("Option passed: %d\n", option);
     FILE *file = fopen("vault.dat", "rb+");
     if (file == NULL)
@@ -95,29 +99,29 @@ int delete_entry(char *key, int option)
 
     Entry entryList[ENTRY_LIST_LENGTH];
 
+    int entryListCount = 0;
+    size_t bytesRead;
+
+    while (bytesRead = fread(&entryList[entryListCount], sizeof(Entry), 1, file))
+    {
+        printf("bytesRead: %d\n", bytesRead);
+        Entry currentEntry = entryList[entryListCount];
+        entryListCount++;
+    }
+    fclose(file);
+
     // Service
     if (option == 1)
     {
-        int entryIndex = 0;
-        size_t bytesRead;
-        while (bytesRead = fread(&entryList[entryIndex], sizeof(Entry), 1, file))
-        {
-            printf("bytesRead: %d\n", bytesRead);
-            Entry currentEntry = entryList[entryIndex];
-            char decryptedPassword[MAX_LEN];
-            xor_cipher(currentEntry.password, KEY);
-            entryIndex++;
-        }
-        fclose(file);
-
         FILE *fileToWrite = fopen(VAULT_FILE, "w+");
         int count = 0;
 
-        fseek(file, 0, SEEK_SET);
+        // fseek(file, 0, SEEK_SET);
 
-        while (count < entryIndex)
+        while (count < entryListCount)
         {
             Entry currentEntry = entryList[count];
+            xor_cipher(entryList[count].password, KEY);
             printf("Service is %s and length is %d.\n", currentEntry.service, strlen(currentEntry.service));
             if (strcmp(currentEntry.service, key) == 0)
             {
@@ -136,6 +140,26 @@ int delete_entry(char *key, int option)
     // Username
     if (option == 2)
     {
+        FILE *fileToWrite = fopen(VAULT_FILE, "w+");
+        int count = 0;
+
+        while (count < entryListCount)
+        {
+            Entry currentEntry = entryList[count];
+            if (strcmp(currentEntry.username, key) == 0)
+            {
+                printf("Same username found. Skipping\n");
+                count++;
+                continue;
+            }
+
+            fwrite(&currentEntry, sizeof(Entry), 1, fileToWrite);
+            count++;
+        }
+        Entry currentEntry = entryList[count];
+        
+        fclose(fileToWrite);
+        return 0;
     }
 
     printf("Invalid option in delete_entry\n");
