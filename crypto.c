@@ -3,11 +3,12 @@
 #include <string.h>
 #include "crypto.h"
 
+/*
+    Ciphers and deciphers passwords for safety.
+*/
 void xor_cipher(char *password, const char *key)
 {
     const int KEY_LEN = strlen(key);
-
-    printf("password: %s\n", password);
 
     size_t passwordLength = strlen(password);
 
