@@ -13,15 +13,15 @@
 Entry write_entry(const char *key)
 {
     Entry entry;
-    printf("Enter service:");
+    printf("Enter service: ");
     scanf("%s", entry.service);
     entry.service[strcspn(entry.service, "\n")] = '\0';
 
-    printf("Enter username or email:");
+    printf("Enter username or email: ");
     scanf("%s", entry.username);
     entry.username[strcspn(entry.username, "\n")] = '\0';
 
-    printf("Enter password:");
+    printf("Enter password: ");
     char password[MAX_LEN];
     scanf("%s", password);
     password[strcspn(password, "\n")] = '\0';
@@ -38,7 +38,7 @@ int save_entry(const Entry *entry)
     FILE *file = fopen(VAULT_FILE, "ab");
     if (!file)
     {
-        perror("No file found.");
+        perror("No file found.\n");
         return 1;
     }
     fwrite(entry, sizeof(Entry), 1, file);
@@ -52,7 +52,7 @@ void list_entries()
     FILE *file = fopen(VAULT_FILE, "rb+");
     if (!file)
     {
-        perror("No file found");
+        perror("No file found\n");
         return;
     }
 
@@ -104,7 +104,6 @@ int delete_entry(char *key, int option)
 
     while (bytesRead = fread(&entryList[entryListCount], sizeof(Entry), 1, file))
     {
-        printf("bytesRead: %d\n", bytesRead);
         Entry currentEntry = entryList[entryListCount];
         entryListCount++;
     }
